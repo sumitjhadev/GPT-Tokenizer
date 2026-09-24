@@ -55,14 +55,27 @@ Everything a language model "sees" is downstream of how its tokenizer chopped up
 
 ## ⚙️ How BPE Works
 
-```mermaid
-flowchart LR
-    A["Raw text"] --> B["UTF-8 bytes\n(256 base tokens)"]
-    B --> C["Count every\nadjacent pair"]
-    C --> D["Merge the most\nfrequent pair\n→ new token ID"]
-    D --> E{"Target vocab\nsize reached?"}
-    E -- No --> C
-    E -- Yes --> F["Final vocabulary\n+ merge rules"]
+```
+  Raw text
+     │
+     ▼
+  UTF-8 bytes  (256 base tokens)
+     │
+     ▼
+  ┌─────────────────────────────┐
+  │  Count every adjacent pair  │ ◀────────────┐
+  └──────────────┬──────────────┘              │
+                 ▼                             │
+  ┌─────────────────────────────┐              │
+  │  Merge most frequent pair   │              │
+  │      → new token ID         │              │
+  └──────────────┬──────────────┘              │
+                 ▼                             │
+       target vocab size reached? ── no ───────┘
+                 │
+                yes
+                 ▼
+   Final vocabulary + merge rules
 ```
 
 Common substrings — `" the"`, `"ing"`, `"tion"` — collapse into single tokens over successive merges, compressing the sequence while *learning* the vocabulary directly from data.
